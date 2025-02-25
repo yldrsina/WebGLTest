@@ -1,10 +1,20 @@
 import { drawScene } from "./drawscene.js";
-import { setGeometry } from "./SetMesh.js";
+import { createBasicTestMesh } from "./MeshUtils.js";
 import { createProgram } from "./shaderworks.js";
-import {vec3, mat4, glMatrix} from "./gl-matrix/index.js";
+import { vec3, mat4 } from "./gl-matrix/index.js";
+import { World } from "./World.js";
 
 async function main() {
+    /**
+     * @type {HTMLCanvasElement}
+     */
     var canvas = document.querySelector("#gl-canvas");
+
+    canvas.addEventListener("click", async () => {
+        await canvas.requestPointerLock({
+            unadjustedMovement: true
+        });
+    })
     /**
      * @type {WebGL2RenderingContext}
      */
@@ -15,47 +25,28 @@ async function main() {
 
     var program = await createProgram(gl, "./VertexShader.glsl", "./FragmentShader.glsl");
     gl.useProgram(program);
-
-    var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-    if (true) {
-        var modelLoc = gl.getUniformLocation(program, "model");
-        if (modelLoc === null)
-            console.error("modelloc uniform invalid.")
-        var viewLoc = gl.getUniformLocation(program, "view");
-        if (viewLoc === null)
-            console.error("viewloc uniform invalid.");
-        var projectionLoc = gl.getUniformLocation(program, "projection");
-        if (projectionLoc === null)
-            console.error("projectloc uniform invalid.");
-
-
-
-
-        var model = mat4.create();
-        mat4.rotate(model, model, glMatrix.toRadian(-55), vec3.fromValues(1, 0, 0));
-
-        var view = mat4.create();
-        var projection = mat4.create();
-        mat4.translate(view, view, vec3.fromValues(0, 0, -3));
-        mat4.perspective(projection, glMatrix.toRadian(45), gl.canvas.clientWidth / gl.canvas.clientHeight, 0.1, 100);
-        gl.uniformMatrix4fv(modelLoc, false, model);
-        console.log("model uniform passed", model);
-        gl.uniformMatrix4fv(viewLoc, false, view);
-        console.log("view uniform passed", view)
-        gl.uniformMatrix4fv(projectionLoc, false, projection);
-        console.log("projection uniform passed", projection);
+    if (!program) {
+        console.error("Shader program could not be created.");
+        return;
     }
 
+    let world = window.world1 = new World();
+    vec3.add(world.camera.Position, world.camera.Position, vec3.fromValues(0, 0, 3));
 
-    var positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    window.world1.drawables.push(await createBasicTestMesh(gl, program));
+    const otherDrawable = await createBasicTestMesh(gl, program);
+    window.world1.drawables.push(otherDrawable);
+    mat4.translate(otherDrawable.transform, otherDrawable.transform, vec3.fromValues(1, 1, 0));
+    canvas.addEventListener("mousemove",
+        /**
+         * 
+         * @param {MouseEvent} event 
+         */
+        (event) => {
+            world.camera.processRotation(event);
+        });
 
-    var indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-    setGeometry(gl);
-
-    drawScene(gl, program, positionAttributeLocation, positionBuffer, indexBuffer);
+    drawScene(gl, window.world1);
 }
 
 
