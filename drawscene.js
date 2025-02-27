@@ -25,11 +25,12 @@ export function drawScene(gl, world) {
         gl.enable(gl.DEPTH_TEST);
 
         world.camera.updateCameraVectors();
-        const projection = mat4.create();
-        mat4.perspective(projection, glMatrix.toRadian(world.camera.Zoom), gl.canvas.clientWidth / gl.canvas.clientHeight, 0.1, 100);
-        const view = world.camera.getViewMatrix();
+        
+        
+
+        //Draw StaticMeshes in world
         world.drawables.forEach((val) => {
-            val.draw(view, projection);
+            val.draw(world.camera.viewMatrix, world.camera.projectionMatrix);
         });
 
     }

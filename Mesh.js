@@ -9,17 +9,18 @@ export class StaticMesh {
      * @param {Float32Array} textureCoordinates 
      * @param {Number} program 
      */
-    constructor(gl, vertices, indices, program, prepareDraw) {
+    constructor(gl,geometries, vertices, indices, program, prepareDraw) {
         this.transform = mat4.create();
         this.vertices = vertices;
         this.indices = indices;
         this.program = program;
         this.prepareDraw = prepareDraw;
+        this.geometries = geometries;
 
 
         this.positionAttributeLocation = gl.getAttribLocation(program, "a_position");
         this.texCoordAttributeLocation = gl.getAttribLocation(program, "a_textureCoord");
-        this.uniforms = { transform: null, view: null, projection: null };
+        this.uniforms = { transform: null, view: null, projection: null , lightColor :null};
         this.uniforms.transform = gl.getUniformLocation(program, "transform");
         if (this.uniforms.transform === null)
             console.error("modelloc uniform invalid.")
@@ -29,6 +30,7 @@ export class StaticMesh {
         this.uniforms.projection = gl.getUniformLocation(program, "projection");
         if (this.uniforms.projection === null)
             console.error("projectloc uniform invalid.");
+        this.uniforms.lightColor=gl.getUniformLocation(program, "lightColor");
 
         this.gl = gl;
         this.buffers = {};
@@ -55,6 +57,7 @@ export class StaticMesh {
         this.gl.uniformMatrix4fv(this.uniforms.transform, false, this.transform);
         this.gl.uniformMatrix4fv(this.uniforms.view, false, viewMatrix);
         this.gl.uniformMatrix4fv(this.uniforms.projection, false, projectionMatrix);
+        this.gl.uniform3f(this.uniforms.lightColor,1,0,0);
 
         if (this.prepareDraw) {
             this.prepareDraw(viewMatrix, projectionMatrix);

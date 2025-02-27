@@ -6,12 +6,15 @@ export class Camera {
     static PITCH = 0;
     static SPEED = 2.5;
     static SENSITIVITY = 0.1;
-    static ZOOM = 45.0;
+    static ZOOM = 55.0;
     Position = vec3.create();
     FrontVector = vec3.create();
     UpVector = vec3.create();
     RightVector = vec3.create();
     WorldUpVector = vec3.create();
+    gl;
+    viewMatrix = mat4.create();
+    projectionMatrix = mat4.create();
 
     Yaw = 0.0;
     Pitch = 0.0;
@@ -21,7 +24,8 @@ export class Camera {
     IsMouseLockedToCanvas = false;
 
 
-    constructor(position = vec3.fromValues(0, 0, 0), up = vec3.fromValues(0, 1, 0), yaw = Camera.YAW, pitch = Camera.PITCH) {
+    constructor(GL, position = vec3.fromValues(0, 0, 0), up = vec3.fromValues(0, 1, 0), yaw = Camera.YAW, pitch = Camera.PITCH) {
+        this.gl = GL;
         this.FrontVector = vec3.fromValues(0, 0, -1);
         this.MovementSpeed = Camera.SPEED;
         this.MouseSensitivity = Camera.SENSITIVITY;
@@ -35,12 +39,10 @@ export class Camera {
 
 
     }
-    getViewMatrix() {
+    SetViewMatrix() {
         const positionplusfront = vec3.create();
         vec3.add(positionplusfront, this.Position, this.FrontVector);
-        const returnmatrix = mat4.create();
-        mat4.lookAt(returnmatrix, this.Position, positionplusfront, this.UpVector);
-        return returnmatrix;
+        mat4.lookAt(this.viewMatrix, this.Position, positionplusfront, this.UpVector);
     }
 
     updateCameraVectors() {
@@ -55,6 +57,9 @@ export class Camera {
         vec3.cross(this.UpVector, this.RightVector, this.FrontVector);
 
         vec3.normalize(this.UpVector, this.UpVector);
+
+        mat4.perspective(this.projectionMatrix, glMatrix.toRadian(this.Zoom), this.gl.canvas.clientWidth / this.gl.canvas.clientHeight, 0.1, 100);
+        this.SetViewMatrix();
     }
 
     processMovement(direction, deltaTime) {

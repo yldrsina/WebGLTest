@@ -1,8 +1,8 @@
 import { Camera } from "./CameraClass.js";
 
 export class World{
-    constructor(){
+    constructor(gl){
         this.drawables = [];
-        this.camera = new Camera();
+        this.camera = new Camera(gl);
     }
 }
