@@ -50,17 +50,6 @@ uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform Material material;
 
-
-
-
-
-
-
-
-
-
-  uniform vec3 lightColor;
-
   varying vec2 TexCoords;
   varying vec3 Normal;
   varying vec3 FragPos;
