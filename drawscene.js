@@ -23,10 +23,12 @@ export function drawScene(gl, world) {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.enable(gl.CULL_FACE);
         gl.enable(gl.DEPTH_TEST);
+    
+        
 
         world.camera.updateCameraVectors();
         
-        
+        mat4.rotate(world.drawables[0].transform, world.drawables[0].transform,glMatrix.toRadian(25*window.deltaTime), vec3.fromValues(0,1,1));
 
         //Draw StaticMeshes in world
         world.drawables.forEach((val) => {

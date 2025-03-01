@@ -1,5 +1,5 @@
 
-import { vec3, mat4, glMatrix } from "./gl-matrix/index.js";
+import { vec3, mat4,mat3, glMatrix } from "./gl-matrix/index.js";
 export class StaticMesh {
     /**
      * 
@@ -9,18 +9,22 @@ export class StaticMesh {
      * @param {Float32Array} textureCoordinates 
      * @param {Number} program 
      */
-    constructor(gl,geometries, vertices, indices, program, prepareDraw) {
+    constructor(gl, geometries, program,texture) {
         this.transform = mat4.create();
-        this.vertices = vertices;
-        this.indices = indices;
+        this.normalTransform = mat4.create();
         this.program = program;
-        this.prepareDraw = prepareDraw;
         this.geometries = geometries;
+        this.gl = gl;
+        this.texture=texture;
+
 
 
         this.positionAttributeLocation = gl.getAttribLocation(program, "a_position");
         this.texCoordAttributeLocation = gl.getAttribLocation(program, "a_textureCoord");
-        this.uniforms = { transform: null, view: null, projection: null , lightColor :null};
+        this.normalsAttributeLocation = gl. getAttribLocation(program, "a_Normal");
+        this.uniforms = { transform: null, view: null, projection: null, lightColor: null };
+
+
         this.uniforms.transform = gl.getUniformLocation(program, "transform");
         if (this.uniforms.transform === null)
             console.error("modelloc uniform invalid.")
@@ -30,21 +34,31 @@ export class StaticMesh {
         this.uniforms.projection = gl.getUniformLocation(program, "projection");
         if (this.uniforms.projection === null)
             console.error("projectloc uniform invalid.");
-        this.uniforms.lightColor=gl.getUniformLocation(program, "lightColor");
+        this.uniforms.normalTransform = gl.getUniformLocation(program, "normaltransform");
 
-        this.gl = gl;
-        this.buffers = {};
-        this.buffers.vertex = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.vertex);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
-        this.buffers.index = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffers.index);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+        this.geometries.forEach(geometry => {
+            geometry.vertexPosition
+            geometry.buffers = {};
+            geometry.buffers.vertex = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, geometry.buffers.vertex);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(geometry.attributes), gl.STATIC_DRAW);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+            //TEMPORARY:
+
+           
+            geometry.buffers.index = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.buffers.index);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(geometry.vertexIndices), gl.STATIC_DRAW);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        });
+
     }
-
+    calculateNormalTransform(){
+        mat4.invert(this.normalTransform,this.transform);
+        mat4.transpose(this.normalTransform,this.normalTransform);
+    }
 
 
     setTransform(newTransform) {
@@ -53,27 +67,33 @@ export class StaticMesh {
 
 
     draw(viewMatrix, projectionMatrix) {
-        this.gl.useProgram(this.program);
-        this.gl.uniformMatrix4fv(this.uniforms.transform, false, this.transform);
-        this.gl.uniformMatrix4fv(this.uniforms.view, false, viewMatrix);
-        this.gl.uniformMatrix4fv(this.uniforms.projection, false, projectionMatrix);
-        this.gl.uniform3f(this.uniforms.lightColor,1,0,0);
+        this.geometries.forEach(geometry => {
+            calculateNormalTransform();
+            this.gl.useProgram(this.program);
+            this.gl.uniformMatrix4fv(this.uniforms.transform, false, this.transform);
+            this.gl.uniformMatrix4fv(this.uniforms.view, false, viewMatrix);
+            this.gl.uniformMatrix4fv(this.uniforms.projection, false, projectionMatrix);
+            this.gl.uniformMatrix4fv(this.uniforms.normalTransform, false, this.normalTransform);
+            //Activate TEXTURE0
+            this.gl.activeTexture(this.gl.TEXTURE0);
+            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+            //BIND BUFFERS.
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.buffers.vertex);
+            this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, geometry.buffers.index);
 
-        if (this.prepareDraw) {
-            this.prepareDraw(viewMatrix, projectionMatrix);
-        }
-        //BIND BUFFERS.
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.vertex);
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.index);
+            //SET POSITION ATTRIB
+            this.gl.enableVertexAttribArray(this.positionAttributeLocation);
+            this.gl.vertexAttribPointer(this.positionAttributeLocation, 3, this.gl.FLOAT, false, 8 * 4 /**3 floats for location, 2 floats for texcord*/, 0 /**buffer start*/);
 
-        //SET POSITION ATTRIB
-        this.gl.enableVertexAttribArray(this.positionAttributeLocation);
-        this.gl.vertexAttribPointer(this.positionAttributeLocation, 3, this.gl.FLOAT, false, 5 * 4 /**3 floats for location, 2 floats for texcord*/, 0 /**buffer start*/);
+            //SET TEXCOORD ATTRIB
+            this.gl.enableVertexAttribArray(this.texCoordAttributeLocation);
+            this.gl.vertexAttribPointer(this.texCoordAttributeLocation, 2, this.gl.FLOAT, false, 8 * 4 /**3 floats for location, 2 floats for texcord*/, 3 * 4 /**next to location.*/);
 
-        //SET TEXCOORD ATTRIB
-        this.gl.enableVertexAttribArray(this.texCoordAttributeLocation);
-        this.gl.vertexAttribPointer(this.texCoordAttributeLocation, 2, this.gl.FLOAT, false, 5 * 4 /**3 floats for location, 2 floats for texcord*/, 3 * 4 /**next to location.*/);
+            // SET NORMAL ATTRIB
+            this.gl.enableVertexAttribArray(this.normalsAttributeLocation);
+            this.gl.vertexAttribPointer(this.texCoordAttributeLocation, 3, this.gl.FLOAT, false, 8 * 4 /**3 floats for location, 2 floats for texcord*/, 5 * 4 /**next to location.*/);
 
-        this.gl.drawElements(this.gl.TRIANGLES, this.gl.getBufferParameter(this.gl.ELEMENT_ARRAY_BUFFER, this.gl.BUFFER_SIZE) / 2, this.gl.UNSIGNED_SHORT, 0);
+            this.gl.drawElements(this.gl.TRIANGLES, this.gl.getBufferParameter(this.gl.ELEMENT_ARRAY_BUFFER, this.gl.BUFFER_SIZE) / 2, this.gl.UNSIGNED_SHORT, 0);
+        });
     }
 }

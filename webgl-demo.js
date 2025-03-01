@@ -3,7 +3,9 @@ import { createBasicTestMesh, parseOBJ } from "./MeshUtils.js";
 import { createProgram } from "./shaderworks.js";
 import { vec3, mat4 } from "./gl-matrix/index.js";
 import { World } from "./World.js";
-import {Light} from "./Lights.js";
+import { Light } from "./Lights.js";
+import { StaticMesh } from "./Mesh.js";
+import { importImage } from "./MeshUtils.js";
 async function main() {
     /**
      * @type {HTMLCanvasElement}
@@ -29,21 +31,18 @@ async function main() {
         console.error("Shader program could not be created.");
         return;
     }
-    const Tbot = await (await fetch ('./resources/Tbot.obj')).text();
-    parseOBJ(Tbot);
-    
-    let world = window.world1 = new World(gl);
-    vec3.add(world.camera.Position, world.camera.Position, vec3.fromValues(0, 0, 5));
-    let light1 = new Light(gl,program,await createBasicTestMesh(gl, program));
+    const T_BC_RobotKafa = await importImage(gl, "resources/M_Robot_Kafa_Base_Color.png");
 
-    mat4.translate(light1.mesh.transform,light1.mesh.transform, vec3.fromValues(1.2,1,2));
-    mat4.scale(light1.mesh.transform,light1.mesh.transform,vec3.fromValues(1,1,1) );
-    window.world1.drawables.push(await createBasicTestMesh(gl, program));
-    const otherDrawable = await createBasicTestMesh(gl, program);
-    window.world1.drawables.push(otherDrawable);
-    window.world1.drawables.push(light1.mesh);
-    mat4.translate(otherDrawable.transform, otherDrawable.transform, vec3.fromValues(1, 1, 0));
+    const tbotMesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/Tbot.obj')).text()), program,T_BC_RobotKafa);
+
+    let world = window.world1 = new World(gl);
+    vec3.add(world.camera.Position, world.camera.Position, vec3.fromValues(0, 0, 6));
     
+   
+    
+
+    window.world1.drawables.push(tbotMesh);
+
     canvas.addEventListener("mousemove",
         /**
          * 

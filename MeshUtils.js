@@ -10,19 +10,27 @@ import { mat4, glMatrix, vec3 } from "./gl-matrix/index.js";
 export async function createBasicTestMesh(gl, program) {
     var positions = new Float32Array([
         // positions          // texture coords
-        0.5, 0.5, 0.0, 1.0, 1.0, // top right
-        0.5, -0.5, 0.0, 1.0, 0.0, // bottom right
-        -0.5, -0.5, 0.0, 0.0, 0.0, // bottom left
-        -0.5, 0.5, 0.0, 0.0, 1.0  // top left 
+        0.5, 0.5, 0.0, // top right
+        0.5, -0.5, 0.0, // bottom right
+        -0.5, -0.5, 0.0, // bottom left
+        -0.5, 0.5, 0.0, // top left 
     ]);
+    const texCoords = [
+        1.0, 1.0,
+        1.0, 0.0,
+        0.0, 0.0,
+        0.0, 1.0
+    ]
     var indicies = new Uint16Array([
         0, 3, 1,//first triangle
         1, 3, 2  //second triangle
     ]);
-    const texture = await importImage(gl, "resources/texturesampleuv.jpg");
-    const sm = new StaticMesh(gl, positions, indicies, program, (view, projection) => {
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+    const geom = new Geometry();
+    geom.setup(positions, [], texCoords, indicies, "basictestmesh");
+
+    
+    const sm = new StaticMesh(gl, [geom], program, (view, projection) => {
+        
     });
     mat4.rotate(sm.transform, sm.transform, glMatrix.toRadian(-55.0), vec3.fromValues(1, 0, 0));
     mat4.translate(sm.transform, sm.transform, vec3.fromValues(0, 0, 0));
@@ -59,42 +67,39 @@ export async function importImage(gl, imagesource) {
 export function parseOBJ(text) {
 
     const geometries = [];
-    var currentgeometry;
-
-    const objPositions = [[0, 0, 0]];
-    const objTexcoords = [[0, 0]];
-    const objNormals = [[0, 0, 0]];
-    const objVertexData = [objPositions, objTexcoords, objNormals,];
-    let totaltriangles = 0;
-    let totalvertices = 0;
+    var currentGeometry;
+    let totalTriangles = 0;
+    let totalVertices = 0;
 
     const keywords = {
 
         f(parts) {
-            currentgeometry.trianglecount++;
-            var parsedindices = [];
+            currentGeometry.facePositions.push(parts);
+            var parsedIndices = [];
             parts.forEach(element => {
-                parsedindices.push(element.split("/")[0]);
+                parsedIndices.push(element.split("/")[0]);
+               currentGeometry.vertexIndices.push(currentGeometry.counter);
+               currentGeometry.counter++;
             });
-            currentgeometry.vertexindices.push(...parsedindices.map(parseFloat));
+            //currentGeometry.vertexIndices.push(...parsedIndices.map((str) => parseFloat(str)-1));
         },
         o(parts) {
-            currentgeometry = new Geometry();
-            geometries.push(currentgeometry);
-            currentgeometry.name = parts;
+            currentGeometry = new Geometry();
+            geometries.push(currentGeometry);
+            currentGeometry.name = parts;
 
         },
         vt(parts) {
-            currentgeometry.texturecoords.push(...parts.map(parseFloat));
+            currentGeometry.textureCoords.push(parts.map(parseFloat));
 
         },
         v(parts) {
-            currentgeometry.vertexcount++;
-            currentgeometry.vertexposition.push(...parts.map(parseFloat));
+
+            currentGeometry.vertexPosition.push(parts.map(parseFloat));
 
         },
         vn(parts) {
-            currentgeometry.vertexnormals.push(...parts.map(parseFloat));
+            currentGeometry.vertexNormals.push(parts.map(parseFloat));
         },
         s(parts) {
 
@@ -124,20 +129,25 @@ export function parseOBJ(text) {
 
     }
     geometries.forEach((value) => {
-        console.log("isim: " + value.name + " vertices: " + value.vertexcount + " triangles: " + value.trianglecount);
-        totaltriangles += value.trianglecount;
-        totalvertices += value.vertexcount;
-        console.debug({
-            vertexposition: value.vertexposition,
-            texturecoords: value.texturecoords,
-            vertexindices: value.vertexindices
-        });
+        console.log("isim:", value.name, "vertices:", value.vertexPosition.length, "triangles:", value.facePositions.length, "textureCoords:", value.textureCoords.length);
+        value.triangleCount = value.vertexIndices.length;
+        value.vertexCount = value.vertexPosition.length;
+        totalTriangles += value.triangleCount;
+        totalVertices += value.vertexCount;
 
+        console.debug({
+            vertexposition: value.vertexPosition,
+            texturecoords: value.textureCoords,
+            vertexindices: value.vertexIndices,
+            facePositions: value.facePositions,
+            finalattributes: value.attributes,
+        });
+        value.createAttributeArray();
 
     });
-    console.log("triangles: " + totaltriangles + " vertices: " + totalvertices);
+    console.log("triangles: " + totalTriangles + " vertices: " + totalVertices);
 
-    return geometries ;
+    return geometries;
 }
 
 
@@ -145,19 +155,64 @@ export function parseOBJ(text) {
 
 
 
-
-
-
-
-
-
 class Geometry {
-    name;
-    vertexcount = 0;
-    trianglecount = 0;
 
-    vertexposition = [];
-    vertexnormals = [];
-    texturecoords = [];
-    vertexindices = [];
+    name;
+    vertexCount = 0;
+    //UNRELIABLE.
+    triangleCount = 0;
+
+    counter=0;
+
+    vertexPosition = [];
+    vertexNormals = [];
+    textureCoords = [];
+    vertexIndices = [];
+    facePositions = [];
+
+
+
+
+    attributes = [];
+
+
+    setup(vPositions, vNormals, tCoords, vIndices, name) {
+        this.vertexPosition = vPositions;
+        this.vertexNormals = vNormals;
+        this.textureCoords = tCoords;
+        this.vertexIndices = vIndices;
+        this.name = name;
+        this.vertexCount = this.vertexPosition.length;
+
+        this.createAttributeArray();
+    }
+
+    createAttributeArray() {
+        let newvertices = [];
+        let newvertex = [];
+        let newtexcoords = [];
+        let newnormals =[];
+        this.facePositions.forEach(face => {      // tüm f satırlarını tara
+            for (var i = 0; i < face.length; i++) { //her bir f satırı için :
+                newvertices = face[i].split("/");  // 1/1/1 i bir arraya [1,1,1] olarak at.
+
+                newvertex = this.vertexPosition[+newvertices[0]-1]; //ilk elemanı vertex positions arrayinden al ve aşağıda pushla
+                if (!newvertex) {
+                    console.error("newvertex is invalid, context:", { newvertices, newvertex, vp: this.vertexPosition, nv: +newvertices[0]-1});
+                }
+                this.attributes.push(...newvertex);
+
+                newtexcoords = this.textureCoords[+newvertices[1] - 1]; //2. elemanı texcoords arrayından al ve pushla
+                if (!newtexcoords) {
+                    console.error("newtexcoords is invalid, context:", { newvertices, newvertex, newtexcoords, nv: +newvertices[1]-1});
+                }
+                this.attributes.push(...newtexcoords);
+
+                newnormals = this.vertexNormals[+newvertices[2]-1]; //3. elemanı al ve vertex normal olarak ayarla
+                yhis.attributes.push(...newnormals);
+
+            }
+
+        });
+    }
 }
