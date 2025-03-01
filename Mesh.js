@@ -67,8 +67,8 @@ export class StaticMesh {
 
 
     draw(viewMatrix, projectionMatrix) {
-        this.geometries.forEach(geometry => {
-            calculateNormalTransform();
+        this.geometries.forEach((geometry) => {
+            this.calculateNormalTransform();
             this.gl.useProgram(this.program);
             this.gl.uniformMatrix4fv(this.uniforms.transform, false, this.transform);
             this.gl.uniformMatrix4fv(this.uniforms.view, false, viewMatrix);
@@ -91,7 +91,7 @@ export class StaticMesh {
 
             // SET NORMAL ATTRIB
             this.gl.enableVertexAttribArray(this.normalsAttributeLocation);
-            this.gl.vertexAttribPointer(this.texCoordAttributeLocation, 3, this.gl.FLOAT, false, 8 * 4 /**3 floats for location, 2 floats for texcord*/, 5 * 4 /**next to location.*/);
+            this.gl.vertexAttribPointer(this.normalsAttributeLocation, 3, this.gl.FLOAT, false, 8 * 4 /**3 floats for location, 2 floats for texcord*/, 5 * 4 /**next to location.*/);
 
             this.gl.drawElements(this.gl.TRIANGLES, this.gl.getBufferParameter(this.gl.ELEMENT_ARRAY_BUFFER, this.gl.BUFFER_SIZE) / 2, this.gl.UNSIGNED_SHORT, 0);
         });

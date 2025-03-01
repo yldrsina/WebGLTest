@@ -209,7 +209,7 @@ class Geometry {
                 this.attributes.push(...newtexcoords);
 
                 newnormals = this.vertexNormals[+newvertices[2]-1]; //3. elemanı al ve vertex normal olarak ayarla
-                yhis.attributes.push(...newnormals);
+                this.attributes.push(...newnormals);
 
             }
 

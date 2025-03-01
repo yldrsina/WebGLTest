@@ -60,7 +60,6 @@ uniform Material material;
 
 
   uniform vec3 lightColor;
-  uniform sampler2D u_image;
 
   varying vec2 TexCoords;
   varying vec3 Normal;
@@ -81,7 +80,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
     // phase 3: spot light
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir);    
 
-    gl_FragColor = vec4(result,1)* texture2D(u_image,TexCoords);
+    gl_FragColor = vec4(result,1)* texture2D(material.diffuse,TexCoords);
 
   }
 
@@ -100,9 +99,9 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     // combine results
-    vec3 ambient = light.ambient * vec3(texture2D(material.diffuse, TexCoords));
+    vec3 ambient = light.ambient;
     vec3 diffuse = light.diffuse * diff * vec3(texture2D(material.diffuse, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture2D(material.specular, TexCoords));
+    vec3 specular = light.specular * spec;
     return (ambient + diffuse + specular);
 }
 
@@ -121,7 +120,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     // combine results
     vec3 ambient = light.ambient * vec3(texture2D(material.diffuse, TexCoords));
     vec3 diffuse = light.diffuse * diff * vec3(texture2D(material.diffuse, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture2D(material.specular, TexCoords));
+    vec3 specular = light.specular * spec;
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
@@ -147,7 +146,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     // combine results
     vec3 ambient = light.ambient * vec3(texture2D(material.diffuse, TexCoords));
     vec3 diffuse = light.diffuse * diff * vec3(texture2D(material.diffuse, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture2D(material.specular, TexCoords));
+    vec3 specular = light.specular * spec;
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;
