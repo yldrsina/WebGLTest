@@ -16,6 +16,7 @@ export class StaticMesh {
         this.geometries = geometries;
         this.gl = gl;
         this.texture=texture;
+        this.materialshininess = 32;
 
 
 
@@ -35,6 +36,8 @@ export class StaticMesh {
         if (this.uniforms.projection === null)
             console.error("projectloc uniform invalid.");
         this.uniforms.normalTransform = gl.getUniformLocation(program, "normaltransform");
+        this.uniforms.diffuseTexture = gl.getUniformLocation(program,"material.diffuse");
+        this.uniforms.shininess = gl.getUniformLocation(program,"material.shininess");
 
         this.geometries.forEach(geometry => {
             geometry.vertexPosition
@@ -77,6 +80,11 @@ export class StaticMesh {
             //Activate TEXTURE0
             this.gl.activeTexture(this.gl.TEXTURE0);
             this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+            //Set Sampler in shader so TEXTURE0 setted to material.diffuse
+            this.gl.uniform1i(this.uniforms.diffuseTexture,0);
+            this.gl.uniform1f(this.uniforms.shininess,this.materialshininess);
+            
+
             //BIND BUFFERS.
             this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.buffers.vertex);
             this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, geometry.buffers.index);
