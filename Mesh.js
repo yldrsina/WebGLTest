@@ -67,6 +67,12 @@ export class StaticMesh {
     setTransform(newTransform) {
         this.transform = newTransform;
     }
+    drawOutlineEffect(drawoutline,phase){
+        if (drawoutline ===true && phase ===0 ){
+            this.gl.stencilFunc(this.gl.ALWAYS,1,0XFF);
+            this.gl.stencilMask(0xFF)
+        }
+    }
 
 
     draw(viewMatrix, projectionMatrix) {

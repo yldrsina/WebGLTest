@@ -25,21 +25,23 @@ async function main() {
         alert('No WebGL');
     }
 
-    var program = await createProgram(gl, "./VertexShader.glsl", "./FragmentShader.glsl?v=4");
+    var program = await createProgram(gl, "./VertexShader.glsl", "./FragmentShader.glsl?v=9");
     gl.useProgram(program);
     if (!program) {
         console.error("Shader program could not be created.");
         return;
     }
+    //TEXTURES
     const T_BC_RobotKafa = await importImage(gl, "resources/M_Robot_Kafa_Base_Color.png");
     const T_UvSample = await importImage(gl, "resources/texturesampleuv.jpg");
-
+    //MESHES
     const tbotMesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/Tbot.obj')).text()), program,T_BC_RobotKafa);
     const directionallightmesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/directionalLight.obj?v=2')).text()), program,T_UvSample);
     const spotlightmesh =new StaticMesh(gl, parseOBJ(await (await fetch('./resources/spotLight.obj?v=1')).text()), program,T_UvSample);
-    
+    const planemesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/plane.obj?v=1')).text()), program,T_UvSample);
+    //LIGHTS
     const DirectionalLight1=  new DirectioanalLight(gl,program,directionallightmesh);
-    const SpotLight1= new SpotLight(gl,program,spotlightmesh,vec3.fromValues(1,-1,0),1,0.09,0.032,Math.cos(glMatrix.toRadian(12.5)),Math.cos(glMatrix.toRadian(15)));
+    const SpotLight1= new SpotLight(gl,program,spotlightmesh,vec3.fromValues(1,-2,0),1,0.09,0.032,Math.cos(glMatrix.toRadian(12.5)),Math.cos(glMatrix.toRadian(15.0)));
     
     SpotLight1.ambient = vec3.fromValues(0,0,0);
     SpotLight1.diffuse = vec3.fromValues(1.6,0.2,0.2);
@@ -48,11 +50,15 @@ async function main() {
 
 
 
-
+    // WORLD
     let world = window.world1 = new World(gl);
-    vec3.add(world.camera.Position, world.camera.Position, vec3.fromValues(0, 0, 6));
+    vec3.add(world.camera.Position, world.camera.Position, vec3.fromValues(0, 2, 6));
     window.world1.translateObject(DirectionalLight1.mesh,vec3.fromValues(2,2,0));
-    window.world1.translateObject(SpotLight1.mesh,vec3.fromValues(-2,1,0));
+    window.world1.translateObject(SpotLight1.mesh,vec3.fromValues(-2,3,0));
+    window.world1.translateObject(tbotMesh,vec3.fromValues(0,1,0));
+    window.world1.translateObject(planemesh,vec3.fromValues(0,-1,0));
+    mat4.scale(planemesh.transform,planemesh.transform,vec3.fromValues(4,4,4));
+    
     SpotLight1.draw();
     
    
@@ -61,7 +67,7 @@ async function main() {
     window.world1.drawables.push(tbotMesh);
     window.world1.drawables.push(DirectionalLight1.mesh);
     window.world1.drawables.push(SpotLight1.mesh);
-
+    window.world1.drawables.push(planemesh);
     canvas.addEventListener("mousemove",
         /**
          * 
