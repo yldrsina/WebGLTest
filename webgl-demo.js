@@ -39,9 +39,12 @@ async function main() {
     const spotlightmesh =new StaticMesh(gl, parseOBJ(await (await fetch('./resources/spotLight.obj?v=1')).text()), program,T_UvSample);
     
     const DirectionalLight1=  new DirectioanalLight(gl,program,directionallightmesh);
-    const SpotLight1= new SpotLight(gl,program,spotlightmesh,vec3.fromValues(0,0,0),1,0.09,0.032,Math.cos(glMatrix.toRadian(12.5)),Math.cos(glMatrix.toRadian(15.0)));
+    const SpotLight1= new SpotLight(gl,program,spotlightmesh,vec3.fromValues(1,-1,0),1,0.09,0.032,Math.cos(glMatrix.toRadian(12.5)),Math.cos(glMatrix.toRadian(15)));
     
-    
+    SpotLight1.ambient = vec3.fromValues(0,0,0);
+    SpotLight1.diffuse = vec3.fromValues(1.6,0.2,0.2);
+    SpotLight1.specular = vec3.fromValues(1,1,1);
+
 
 
 

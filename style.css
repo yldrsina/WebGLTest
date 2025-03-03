@@ -1,5 +1,5 @@
 body {
-    background-color: lightblue;
+    background-color: rgb(26, 36, 39);
     margin-left: 20px;
   }
 
@@ -10,4 +10,7 @@ body {
     border-width: 5px;
     border-radius: 5px;
     border-color: green;
+  }
+  p {
+    color: azure;
   }

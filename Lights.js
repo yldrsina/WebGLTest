@@ -1,5 +1,7 @@
 
 import { vec3, mat4, glMatrix } from "./gl-matrix/index.js";
+import { fromEuler } from "./gl-matrix/quat.js";
+import { fromRotationTranslation } from "./gl-matrix/quat2.js";
 
 class Light {
     /**
@@ -75,8 +77,8 @@ export class SpotLight extends Light {
         this.uniforms.constant =gl.getUniformLocation(program,"spotLight.constant");
         this.uniforms.linear = gl.getUniformLocation(program,"spotLight.linear");
         this.uniforms.quadratic= gl.getUniformLocation(program,"spotLight.quadratic");
-
-        mat4.lookAt(mesh.transform,vec3.fromValues(0,0,0),direction,vec3.fromValues(0,1,0));
+        mat4.getTranslation(this.position,this.mesh.transform);
+        mat4.targetTo(mesh.transform,this.position,direction,vec3.fromValues(0,1,0));
 
         this.draw();
 
@@ -87,7 +89,11 @@ export class SpotLight extends Light {
 
 
     draw() {
-        mat4.getTranslation( this.position,this.mesh.transform);
+        
+       
+        mat4.getTranslation(this.position,this.mesh.transform);
+       
+    
         console.log (this.position);
         this.gl.uniform3fv(this.uniforms.direction, this.direction);
         this.gl.uniform3fv(this.uniforms.ambient, this.ambient);
