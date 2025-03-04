@@ -101,7 +101,7 @@ export class StaticMesh {
             this.gl.stencilMask(0x00);
             
             const toUseTransform = mat4.create();
-            const scaleFactor = 1.1;
+            const scaleFactor = 1.04;
             mat4.scale(toUseTransform, this.transform, vec3.fromValues(scaleFactor, scaleFactor, scaleFactor));
             
             this.gl.useProgram(this.outlineprogram);
