@@ -20,12 +20,13 @@ async function main() {
     /**
      * @type {WebGL2RenderingContext}
      */
-    var gl = canvas.getContext("webgl");
+    var gl = canvas.getContext("webgl",{stencil:true});
     if (!gl) {
         alert('No WebGL');
     }
 
     var program = await createProgram(gl, "./VertexShader.glsl", "./FragmentShader.glsl?v=9");
+    var programoutline = await createProgram(gl, "./VertexShader.glsl", "./FragmentShaderoutline.glsl?v=6");
     gl.useProgram(program);
     if (!program) {
         console.error("Shader program could not be created.");
@@ -35,7 +36,7 @@ async function main() {
     const T_BC_RobotKafa = await importImage(gl, "resources/M_Robot_Kafa_Base_Color.png");
     const T_UvSample = await importImage(gl, "resources/texturesampleuv.jpg");
     //MESHES
-    const tbotMesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/Tbot.obj')).text()), program,T_BC_RobotKafa);
+    const tbotMesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/Tbot.obj')).text()), program,T_BC_RobotKafa,programoutline, true);
     const directionallightmesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/directionalLight.obj?v=2')).text()), program,T_UvSample);
     const spotlightmesh =new StaticMesh(gl, parseOBJ(await (await fetch('./resources/spotLight.obj?v=1')).text()), program,T_UvSample);
     const planemesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/plane.obj?v=1')).text()), program,T_UvSample);
@@ -64,10 +65,10 @@ async function main() {
    
     
 
-    window.world1.drawables.push(tbotMesh);
     window.world1.drawables.push(DirectionalLight1.mesh);
     window.world1.drawables.push(SpotLight1.mesh);
     window.world1.drawables.push(planemesh);
+    window.world1.drawables.push(tbotMesh);
     canvas.addEventListener("mousemove",
         /**
          * 

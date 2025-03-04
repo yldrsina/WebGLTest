@@ -18,19 +18,27 @@ export function drawScene(gl, world) {
         fps = 1 / window.deltaTime;
         document.getElementById("fps").textContent = "FPS: " + fps.toFixed(1);
         lastTime = currentTime;
-
-        gl.clearColor(0.2, 0.3, 0.3, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.enable(gl.CULL_FACE);
+        
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LESS);
-
-    
+        gl.enable(gl.STENCIL_TEST);
+        gl.stencilFunc(gl.NOTEQUAL,1,0xFF);
+        gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
+        gl.clearColor(0.2, 0.3, 0.3, 1.0);
         
+        
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+        gl.enable(gl.CULL_FACE);
+        
+
+        
+        gl.stencilMask(0x00);
+
+
 
         world.camera.updateCameraVectors();
-        
-        mat4.rotate(world.drawables[0].transform, world.drawables[0].transform,glMatrix.toRadian(25*window.deltaTime), vec3.fromValues(0,1,1));
+
+        mat4.rotate(world.drawables[3].transform, world.drawables[3].transform, glMatrix.toRadian(25 * window.deltaTime), vec3.fromValues(0, 1, 1));
 
         //Draw StaticMeshes in world
         world.drawables.forEach((val) => {
