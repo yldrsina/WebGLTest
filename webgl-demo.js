@@ -27,6 +27,7 @@ async function main() {
 
     var program = await createProgram(gl, "./VertexShader.glsl", "./FragmentShader.glsl?v=9");
     var programoutline = await createProgram(gl, "./VertexShader.glsl", "./FragmentShaderoutline.glsl?v=6");
+    var programedvarlogo = await createProgram(gl, "./VertexShader.glsl", "./FragmentShader_Masked.glsl?v=3");
     gl.useProgram(program);
     if (!program) {
         console.error("Shader program could not be created.");
@@ -35,11 +36,13 @@ async function main() {
     //TEXTURES
     const T_BC_RobotKafa = await importImage(gl, "resources/M_Robot_Kafa_Base_Color.png");
     const T_UvSample = await importImage(gl, "resources/texturesampleuv.jpg");
+    const T_EdvarLogo = await importImage(gl, "resources/edvar_logo.png");
     //MESHES
     const tbotMesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/Tbot.obj')).text()), program,T_BC_RobotKafa,programoutline, true);
     const directionallightmesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/directionalLight.obj?v=2')).text()), program,T_UvSample);
     const spotlightmesh =new StaticMesh(gl, parseOBJ(await (await fetch('./resources/spotLight.obj?v=1')).text()), program,T_UvSample);
     const planemesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/plane.obj?v=1')).text()), program,T_UvSample);
+    const edvarlogomesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/plane.obj?v=1')).text()), programedvarlogo,T_EdvarLogo);
     //LIGHTS
     const DirectionalLight1=  new DirectioanalLight(gl,program,directionallightmesh);
     const SpotLight1= new SpotLight(gl,program,spotlightmesh,vec3.fromValues(1,-2,0),1,0.09,0.032,Math.cos(glMatrix.toRadian(12.5)),Math.cos(glMatrix.toRadian(15.0)));
@@ -58,6 +61,9 @@ async function main() {
     window.world1.translateObject(SpotLight1.mesh,vec3.fromValues(-2,3,0));
     window.world1.translateObject(tbotMesh,vec3.fromValues(0,1,0));
     window.world1.translateObject(planemesh,vec3.fromValues(0,-1,0));
+    window.world1.translateObject(edvarlogomesh,vec3.fromValues(2,0,-1));
+    mat4.scale(edvarlogomesh.transform,edvarlogomesh.transform,vec3.fromValues(0.5,0.3,0.5));
+    mat4.rotate(edvarlogomesh.transform,edvarlogomesh.transform,glMatrix.toRadian(15),vec3.fromValues(1,0,0));
     mat4.scale(planemesh.transform,planemesh.transform,vec3.fromValues(4,4,4));
     
     SpotLight1.draw();
@@ -69,6 +75,7 @@ async function main() {
     window.world1.drawables.push(SpotLight1.mesh);
     window.world1.drawables.push(planemesh);
     window.world1.drawables.push(tbotMesh);
+    window.world1.drawables.push(edvarlogomesh);
     canvas.addEventListener("mousemove",
         /**
          * 
