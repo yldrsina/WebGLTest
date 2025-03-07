@@ -57,7 +57,7 @@ async function main() {
     // WORLD
     let world = window.world1 = new World(gl);
     vec3.add(world.camera.Position, world.camera.Position, vec3.fromValues(0, 2, 6));
-    window.world1.translateObject(DirectionalLight1.mesh,vec3.fromValues(2,2,0));
+    window.world1.translateObject(DirectionalLight1.mesh,vec3.fromValues(2,3,0));
     window.world1.translateObject(SpotLight1.mesh,vec3.fromValues(-2,3,0));
     window.world1.translateObject(tbotMesh,vec3.fromValues(0,1,0));
     window.world1.translateObject(planemesh,vec3.fromValues(0,-1,0));
@@ -71,11 +71,11 @@ async function main() {
    
     
 
-    window.world1.drawables.push(DirectionalLight1.mesh);
-    window.world1.drawables.push(SpotLight1.mesh);
-    window.world1.drawables.push(planemesh);
-    window.world1.drawables.push(tbotMesh);
-    window.world1.drawables.push(edvarlogomesh);
+    window.world1.AddLight(DirectionalLight1);
+    window.world1.AddLight(SpotLight1);
+    window.world1.AddStaticMesh(planemesh);
+    window.world1.AddStaticMesh(tbotMesh);
+    window.world1.AddStaticMesh(edvarlogomesh);
     canvas.addEventListener("mousemove",
         /**
          * 

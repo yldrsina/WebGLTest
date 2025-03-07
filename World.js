@@ -5,7 +5,9 @@ export class World{
     
     constructor(gl){
         this.drawables = [];
+        this.lights = [];
         this.camera = new Camera(gl);
+        
     }
 
 translateObject(mesh,vec3translate=vec3.fromValues(0,0,0)){
@@ -15,5 +17,23 @@ translateObject(mesh,vec3translate=vec3.fromValues(0,0,0)){
    
 }
 
-
+GetPrograms() {
+    var programs =[];
+this.drawables.forEach(element => {
+    programs.push(element.program);   
+});
+return programs;
 }
+AddStaticMesh(mesh){
+    // Push Mesh
+    this.drawables.push(mesh);
+
+    // Set Lighting info of mesh.
+}
+AddLight (light) {
+    this.lights.push(light);
+    this.drawables.push(light.mesh);
+    light.draw();
+}
+}
+

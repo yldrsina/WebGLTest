@@ -34,15 +34,15 @@ export class DirectioanalLight extends Light {
         this.uniforms.specular = gl.getUniformLocation(program, "dirLight.specular");
         mat4.lookAt(mesh.transform, vec3.fromValues(0, 0, 0), direction, vec3.fromValues(0, 1, 0));
 
-        this.setUniformLocations();
+        this.draw();
 
 
     }
 
+    
 
 
-
-    setUniformLocations() {
+    draw() {
         this.gl.uniform3fv(this.uniforms.direction, this.direction);
         this.gl.uniform3fv(this.uniforms.ambient, this.ambient);
         this.gl.uniform3fv(this.uniforms.diffuse, this.diffuse);
