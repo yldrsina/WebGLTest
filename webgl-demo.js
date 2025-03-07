@@ -25,9 +25,9 @@ async function main() {
         alert('No WebGL');
     }
 
-    var program = await createProgram(gl, "./VertexShader.glsl", "./FragmentShader.glsl?v=9");
-    var programoutline = await createProgram(gl, "./VertexShader.glsl", "./FragmentShaderoutline.glsl?v=6");
-    var programedvarlogo = await createProgram(gl, "./VertexShader.glsl", "./FragmentShader_Masked.glsl?v=3");
+    var program = await createProgram(gl, "./VertexShader.glsl", "shaders/FragmentShader.glsl?v=1");
+    var programoutline = await createProgram(gl, "./VertexShader.glsl", "shaders/FragmentShaderoutline.glsl?v=5");
+    var programedvarlogo = await createProgram(gl, "./VertexShader.glsl", "shaders/FragmentShader_Masked.glsl?v=3");
     gl.useProgram(program);
     if (!program) {
         console.error("Shader program could not be created.");
@@ -36,16 +36,17 @@ async function main() {
     //TEXTURES
     const T_BC_RobotKafa = await importImage(gl, "resources/M_Robot_Kafa_Base_Color.png");
     const T_UvSample = await importImage(gl, "resources/texturesampleuv.jpg");
+    const T_Floor = await importImage(gl, "resources/floor.jpg");
     const T_EdvarLogo = await importImage(gl, "resources/edvar_logo.png");
     //MESHES
     const tbotMesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/Tbot.obj')).text()), program,T_BC_RobotKafa,programoutline, true);
     const directionallightmesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/directionalLight.obj?v=2')).text()), program,T_UvSample);
     const spotlightmesh =new StaticMesh(gl, parseOBJ(await (await fetch('./resources/spotLight.obj?v=1')).text()), program,T_UvSample);
-    const planemesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/plane.obj?v=1')).text()), program,T_UvSample);
+    const planemesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/plane.obj?v=1')).text()), program,T_Floor);
     const edvarlogomesh = new StaticMesh(gl, parseOBJ(await (await fetch('./resources/plane.obj?v=1')).text()), programedvarlogo,T_EdvarLogo);
     //LIGHTS
-    const DirectionalLight1=  new DirectioanalLight(gl,program,directionallightmesh);
-    const SpotLight1= new SpotLight(gl,program,spotlightmesh,vec3.fromValues(1,-2,0),1,0.09,0.032,Math.cos(glMatrix.toRadian(12.5)),Math.cos(glMatrix.toRadian(15.0)));
+    const DirectionalLight1=  new DirectioanalLight(gl,directionallightmesh);
+    const SpotLight1= new SpotLight(gl,spotlightmesh,vec3.fromValues(1,-2,0),1,0.09,0.032,Math.cos(glMatrix.toRadian(12.5)),Math.cos(glMatrix.toRadian(15.0)));
     
     SpotLight1.ambient = vec3.fromValues(0,0,0);
     SpotLight1.diffuse = vec3.fromValues(1.6,0.2,0.2);
@@ -66,7 +67,6 @@ async function main() {
     mat4.rotate(edvarlogomesh.transform,edvarlogomesh.transform,glMatrix.toRadian(15),vec3.fromValues(1,0,0));
     mat4.scale(planemesh.transform,planemesh.transform,vec3.fromValues(4,4,4));
     
-    SpotLight1.draw();
     
    
     

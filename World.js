@@ -27,13 +27,20 @@ return programs;
 AddStaticMesh(mesh){
     // Push Mesh
     this.drawables.push(mesh);
-
+    this.lights.forEach(light => {
+        light.setLightUniformsandDraw(mesh.program);
+    });
     // Set Lighting info of mesh.
 }
 AddLight (light) {
     this.lights.push(light);
     this.drawables.push(light.mesh);
-    light.draw();
+    var programs = this.GetPrograms();
+    programs.forEach(program => {
+        light.setLightUniformsandDraw(program);
+        
+    });
+
 }
 }
 
