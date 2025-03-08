@@ -1,17 +1,18 @@
-import { drawScene } from "./drawscene.js";
+import { drawScene } from "./DrawScene.js";
 import { parseOBJ } from "./MeshUtils.js";
-import { createProgram } from "./shaderworks.js";
+import { createProgram } from "./ShaderWorks.js";
 import { vec3, mat4, glMatrix } from "./gl-matrix/index.js";
 import { World } from "./World.js";
 import { DirectioanalLight, SpotLight } from "./Lights.js";
 import { StaticMesh } from "./Mesh.js";
 import { importImage } from "./MeshUtils.js";
-import { Framebuffer } from "./Framebuffer.js";
+import { InputSystem } from "./Input.js";
 async function main() {
     /**
      * @type {HTMLCanvasElement}
      */
     var canvas = document.querySelector("#gl-canvas");
+    InputSystem.create(canvas);
 
     canvas.addEventListener("click", async () => {
         await canvas.requestPointerLock({
@@ -86,15 +87,16 @@ async function main() {
     window.world1.AddStaticMesh(tbotMesh);
     window.world1.AddStaticMesh(windowmesh);
     window.world1.AddStaticMesh(edvarlogomesh);
-    
-    canvas.addEventListener("mousemove",
-        /**
-         * 
-         * @param {MouseEvent} event 
-         */
-        (event) => {
-            world.camera.processRotation(event);
-        });
+
+
+    // canvas.addEventListener("mousemove",
+    //     /**
+    //      * 
+    //      * @param {MouseEvent} event 
+    //      */
+    //     (event) => {
+    //         world.camera.processRotation(event);
+    //     });
 
     drawScene(gl, window.world1,screenprogram);
 }
