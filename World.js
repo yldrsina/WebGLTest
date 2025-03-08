@@ -1,13 +1,23 @@
 import { Camera } from "./CameraClass.js";
+import { Framebuffer } from "./Framebuffer.js";
 import { vec3, mat4 } from "./gl-matrix/index.js";
+import { createScreenMesh } from "./MeshUtils.js";
 
 export class World{
-    
-    constructor(gl){
+    /**
+     * @param gl {WebGL2RenderingContext}
+     */
+    constructor(gl,worldprogram){
+        this.gl = gl;
+        this.worldprogram = worldprogram;
         this.drawables = [];
         this.lights = [];
         this.camera = new Camera(gl);
-        
+        this.framebuffer = new Framebuffer(gl);
+        this.screenmeshbuffer = createScreenMesh(gl,worldprogram);
+        gl.useProgram(worldprogram);
+        this.positionAttributeLocation = gl.getAttribLocation(worldprogram, "a_position");
+        this.texCoordAttributeLocation = gl.getAttribLocation(worldprogram, "a_textureCoord");
     }
 
 translateObject(mesh,vec3translate=vec3.fromValues(0,0,0)){
@@ -41,6 +51,25 @@ AddLight (light) {
         
     });
 
+}
+
+drawScreenbufferMesh() {
+    this.gl.useProgram(this.worldprogram);
+    this.gl.disable(this.gl.DEPTH_TEST);
+    this.gl.activeTexture(this.gl.TEXTURE0);
+            this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebuffer.colorBufferTexture);
+            //Set Sampler in shader so TEXTURE0 setted to material.diffuse
+
+
+
+            
+            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.screenmeshbuffer);
+            this.gl.enableVertexAttribArray(this.positionAttributeLocation);
+            this.gl.vertexAttribPointer(this.positionAttributeLocation, 3, this.gl.FLOAT, false, 4 * 4 /**3 floats for location, 2 floats for texcord*/, 0 /**buffer start*/);
+            this.gl.enableVertexAttribArray(this.texCoordAttributeLocation);
+            this.gl.vertexAttribPointer(this.texCoordAttributeLocation, 2, this.gl.FLOAT, false, 4 * 4 /**3 floats for location, 2 floats for texcord*/, 2 * 4 /**next to location.*/);
+            this.gl.drawArrays(this.gl.TRIANGLES,0,6);
+            this.gl.enable(this.gl.DEPTH_TEST);
 }
 }
 

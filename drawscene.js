@@ -1,13 +1,14 @@
 import { vec3, mat4, glMatrix } from "./gl-matrix/index.js";
 import { Camera } from "./CameraClass.js";
 import { World } from "./World.js";
+import { Framebuffer } from "./Framebuffer.js";
 /**
  * 
  * @param {WebGL2RenderingContext} gl 
  * @param {World} world
  * @param {Camera} camera1
  */
-export function drawScene(gl, world) {
+export function drawScene(gl, world,screenprogram) {
     var lastTime = 0;
     let fps = 0;
     function Tick(currentTime) {
@@ -18,6 +19,8 @@ export function drawScene(gl, world) {
         fps = 1 / window.deltaTime;
         document.getElementById("fps").textContent = "FPS: " + fps.toFixed(1);
         lastTime = currentTime;
+        // FRAMEBUFFER 
+        gl.bindFramebuffer(gl.FRAMEBUFFER,world.framebuffer.framebuffer);
         
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LESS);
@@ -45,6 +48,12 @@ export function drawScene(gl, world) {
             val.draw(world.camera.viewMatrix, world.camera.projectionMatrix);
         });
 
+        // BINDING DEFAULT FRAMEBUFFER BACK
+        gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+        gl.disable(gl.DEPTH_TEST);
+        gl.clearColor(0.2, 0.3, 0.3, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+       world.drawScreenbufferMesh();
     }
     requestAnimationFrame(Tick);
 

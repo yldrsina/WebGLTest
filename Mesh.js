@@ -9,7 +9,7 @@ export class StaticMesh {
      * @param {Float32Array} textureCoordinates 
      * @param {Number} program 
      */
-    constructor(gl, geometries, program, texture, outlineprogram = null, drawoutline = false) {
+    constructor(gl, geometries, program, texture, outlineprogram = null, drawoutline = false,transparent=false) {
         this.transform = mat4.create();
         this.normalTransform = mat4.create();
         this.program = program;
@@ -21,6 +21,7 @@ export class StaticMesh {
         this.drawoutline = drawoutline;
         this.viewMatrix = mat4.create();
         this.projectionMatrix = mat4.create();
+        this.transparent = transparent
 
 
         this.positionAttributeLocation = gl.getAttribLocation(program, "a_position");
@@ -116,6 +117,15 @@ export class StaticMesh {
             this.gl.enable(this.gl.DEPTH_TEST);
         }
     }
+    SetOpacityParameter() {
+        if(this.transparent == true){
+            this.gl.enable(this.gl.BLEND);
+            this.gl.blendFunc(this.gl.SRC_ALPHA,this.gl.ONE_MINUS_SRC_ALPHA);
+        }
+        else {
+            this.gl.disable(this.gl.BLEND);
+        }
+    }
 
 
     draw(viewMatrix, projectionMatrix) {
@@ -125,7 +135,7 @@ export class StaticMesh {
             this.calculateNormalTransform();
             this.gl.useProgram(this.program);
             this.setProgramUniforms(this.gl, this.program);
-
+            this.SetOpacityParameter();
             this.drawOutlineEffect(this.drawoutline, 0);
             this.gl.uniformMatrix4fv(this.uniforms.transform, false, this.transform);
             this.gl.uniformMatrix4fv(this.uniforms.view, false, viewMatrix);

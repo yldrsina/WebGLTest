@@ -7,34 +7,22 @@ import { mat4, glMatrix, vec3 } from "./gl-matrix/index.js";
  * @param {Number} program 
  * @returns {StaticMesh}
  */
-export async function createBasicTestMesh(gl, program) {
+export function createScreenMesh(gl, program) {
     var positions = new Float32Array([
-        // positions          // texture coords
-        0.5, 0.5, 0.0, // top right
-        0.5, -0.5, 0.0, // bottom right
-        -0.5, -0.5, 0.0, // bottom left
-        -0.5, 0.5, 0.0, // top left 
-    ]);
-    const texCoords = [
-        1.0, 1.0,
-        1.0, 0.0,
-        0.0, 0.0,
-        0.0, 1.0
-    ]
-    var indicies = new Uint16Array([
-        0, 3, 1,//first triangle
-        1, 3, 2  //second triangle
-    ]);
-    const geom = new Geometry();
-    geom.setup(positions, [], texCoords, indicies, "basictestmesh");
+        // positions   // texCoords
+        -1.0,  1.0,  0.0, 1.0,
+        -1.0, -1.0,  0.0, 0.0,
+         1.0, -1.0,  1.0, 0.0,
 
+        -1.0,  1.0,  0.0, 1.0,
+         1.0, -1.0,  1.0, 0.0,
+         1.0,  1.0,  1.0, 1.0
+    ]);
+    var buffer1 = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,buffer1);
+    gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);
+    return buffer1;
     
-    const sm = new StaticMesh(gl, [geom], program, (view, projection) => {
-        
-    });
-    mat4.rotate(sm.transform, sm.transform, glMatrix.toRadian(-55.0), vec3.fromValues(1, 0, 0));
-    mat4.translate(sm.transform, sm.transform, vec3.fromValues(0, 0, 0));
-    return sm;
 }
 /**
  * 
