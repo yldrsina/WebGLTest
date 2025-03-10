@@ -1,6 +1,5 @@
-// fragment shaders don't have a default precision so we need
-  // to pick one. mediump is a good default
-  precision mediump float;
+ #version 300 es
+  precision highp float;
 struct Material {
     sampler2D diffuse;
     
@@ -50,9 +49,9 @@ uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform Material material;
 
-  varying vec2 TexCoords;
-  varying vec3 Normal;
-  varying vec3 FragPos;
+  in vec2 TexCoords;
+  in vec3 Normal;
+  in vec3 FragPos;
 
   float near = 0.1;
   float far =100.0;
@@ -61,9 +60,11 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 float LinearizeDepth (float depth);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);  
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);  
-  
+
+layout (location =0) out vec4 FragColor;  
+
   void main() {
-    float depth = LinearizeDepth(gl_FragCoord.z) / far;
+    vec3 depth = vec3(LinearizeDepth(gl_FragCoord.z) / far);
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
         vec3 lightresult = CalcDirLight(dirLight, norm, viewDir);
@@ -72,11 +73,11 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
      //result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
      //phase 3: spot light
         lightresult = lightresult + CalcSpotLight(spotLight, norm, FragPos, viewDir);
-        vec4 DiffuseColor = texture2D(material.diffuse,TexCoords);
+        vec4 DiffuseColor = texture(material.diffuse,TexCoords);
         if (DiffuseColor.a <0.1)   
             discard;    
 
-    gl_FragColor = DiffuseColor * vec4(lightresult,1);
+    FragColor = DiffuseColor * vec4(lightresult,1);
 
   }
 

@@ -1,8 +1,10 @@
+   #version 300 es
+   precision highp float;
   // an attribute will receive data from a buffer
-  attribute vec3 a_position;
-  attribute vec2 a_textureCoord;
+  layout(location = 0) in vec3 a_position;
+  layout(location = 1) in vec2 a_textureCoord;
 
-  varying vec2 TexCoords;
+  out vec2 TexCoords;
  
   // all shaders have a main function
   void main() {

@@ -1,6 +1,6 @@
-import { drawScene } from "./DrawScene.js";
+import { drawScene } from "./drawscene.js";
 import { parseOBJ } from "./MeshUtils.js";
-import { createProgram } from "./ShaderWorks.js";
+import { createProgram } from "./shaderworks.js";
 import { vec3, mat4, glMatrix } from "./gl-matrix/index.js";
 import { World } from "./World.js";
 import { DirectioanalLight, SpotLight } from "./Lights.js";
@@ -29,10 +29,10 @@ async function main() {
    
     
 
-    var program = await createProgram(gl, "shaders/VertexShader.glsl", "shaders/FragmentShader.glsl?v=1");
-    var programoutline = await createProgram(gl, "shaders/VertexShader.glsl", "shaders/FragmentShaderoutline.glsl?v=5");
-    var programedvarlogo = await createProgram(gl, "shaders/VertexShader.glsl", "shaders/FragmentShader_Masked.glsl?v=3");
-    var screenprogram = await createProgram(gl, "shaders/VertexShader_Screen.glsl", "shaders/FragmentShader_Screen.glsl?v=3");
+    var program = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShader.glsl?v=10");
+    var programoutline = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShaderoutline.glsl?v=13");
+    var programedvarlogo = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShader_Masked.glsl?v=12");
+    var screenprogram = await createProgram(gl, "shaders/VertexShader_Screen.glsl?v=1", "shaders/FragmentShader_Screen.glsl?v=22");
     gl.useProgram(program);
     if (!program) {
         console.error("Shader program could not be created.");

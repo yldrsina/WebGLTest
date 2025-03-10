@@ -1,20 +1,37 @@
-// fragment shaders don't have a default precision so we need
-  // to pick one. mediump is a good default
-  precision mediump float;
+ #version 300 es
+  precision highp float;
 
 
 uniform sampler2D screenTexture;
+uniform sampler2D depthTexture;
+uniform int framebufferselector;
 
 
 
-  varying vec2 TexCoords;
+  in vec2 TexCoords;
 
- 
+  float near = 0.1;
+  float far =100.0;
 
-
+  layout (location =0) out vec4 FragColor;
   
+  float LinearizeDepth (float depth);
+
   void main() {
-    vec3 color =texture2D(screenTexture,TexCoords).rgb;
-    gl_FragColor =  vec4(color,1.0);
+    float zdepth = LinearizeDepth(texture(depthTexture,TexCoords).r) / far;
+    normalize(zdepth);
+    vec3 color =texture(screenTexture,TexCoords).rgb;
+    if (framebufferselector ==0)
+    color = texture(screenTexture,TexCoords).rgb;
+    if (framebufferselector==1)
+    color = vec3(zdepth);
+    
+    FragColor =  vec4(color,1.0);
 
   }
+// DEPTH CALCULATION
+float LinearizeDepth (float depth){
+    float z = depth *2.0 - 1.0;
+    return ((2.0 * near* far) / (far+near - z*(far - near)));
+}
+
