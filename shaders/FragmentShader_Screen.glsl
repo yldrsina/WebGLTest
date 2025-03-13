@@ -19,12 +19,12 @@ uniform int framebufferselector;
 
   void main() {
     float zdepth = LinearizeDepth(texture(depthTexture,TexCoords).r) / far;
-    normalize(zdepth);
+    float normalizedzdepth = pow(zdepth,125.0);
     vec3 color =texture(screenTexture,TexCoords).rgb;
     if (framebufferselector ==0)
     color = texture(screenTexture,TexCoords).rgb;
     if (framebufferselector==1)
-    color = vec3(zdepth);
+    color = texture(depthTexture,TexCoords).rgb;
     
     FragColor =  vec4(color,1.0);
 

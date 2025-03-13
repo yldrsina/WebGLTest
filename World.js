@@ -21,6 +21,15 @@ export class World {
         this.screenTextureuniform = gl.getUniformLocation(worldprogram, "screenTexture");
         this.depthTextureuniform = gl.getUniformLocation(worldprogram, "depthTexture");
         this.framebufferselectoruniform = gl.getUniformLocation(worldprogram, "framebufferselector");
+        this.framebufferselectorvalue = 0;
+        this.dropdown = document.querySelector("#menu");
+        this.dropdown.addEventListener('change', () => {
+            const value = this.dropdown.value;
+            if (value == "DefaultLit")
+                this.framebufferselectorvalue = 0;
+            if (value == "Depth")
+                this.framebufferselectorvalue = 1;
+        })
 
     }
 
@@ -59,28 +68,29 @@ export class World {
 
     drawScreenbufferMesh() {
         this.gl.useProgram(this.worldprogram);
-        this.gl.disable(this.gl.DEPTH_TEST);
+        
         this.gl.uniform1i(this.screenTextureuniform, 0);
         this.gl.uniform1i(this.depthTextureuniform, 1);
         this.gl.activeTexture(this.gl.TEXTURE0);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebuffer.colorBufferTexture);
 
 
-        this.gl.uniform1i(this.framebufferselectoruniform, 1);
-       
-        
-        this.gl.activeTexture(this.gl.TEXTURE1,);
+        this.gl.uniform1i(this.framebufferselectoruniform, this.framebufferselectorvalue);
+
+
+        this.gl.activeTexture(this.gl.TEXTURE1);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebuffer.depthbufferTexture);
 
 
 
 
-
+        
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.screenmeshbuffer);
         this.gl.enableVertexAttribArray(this.positionAttributeLocation);
         this.gl.vertexAttribPointer(this.positionAttributeLocation, 3, this.gl.FLOAT, false, 4 * 4 /**3 floats for location, 2 floats for texcord*/, 0 /**buffer start*/);
         this.gl.enableVertexAttribArray(this.texCoordAttributeLocation);
         this.gl.vertexAttribPointer(this.texCoordAttributeLocation, 2, this.gl.FLOAT, false, 4 * 4 /**3 floats for location, 2 floats for texcord*/, 2 * 4 /**next to location.*/);
+        this.gl.disable(this.gl.DEPTH_TEST);
         this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
         this.gl.enable(this.gl.DEPTH_TEST);
     }

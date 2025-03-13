@@ -52,7 +52,6 @@ export function drawScene(gl, world, screenprogram) {
 
         // BINDING DEFAULT FRAMEBUFFER BACK
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.disable(gl.DEPTH_TEST);
         gl.clearColor(0.2, 0.3, 0.3, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
         world.drawScreenbufferMesh();

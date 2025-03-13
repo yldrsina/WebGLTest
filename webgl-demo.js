@@ -12,6 +12,8 @@ async function main() {
      * @type {HTMLCanvasElement}
      */
     var canvas = document.querySelector("#gl-canvas");
+    
+
     InputSystem.create(canvas);
 
     canvas.addEventListener("click", async () => {
@@ -29,10 +31,10 @@ async function main() {
    
     
 
-    var program = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShader.glsl?v=10");
-    var programoutline = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShaderoutline.glsl?v=13");
-    var programedvarlogo = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShader_Masked.glsl?v=12");
-    var screenprogram = await createProgram(gl, "shaders/VertexShader_Screen.glsl?v=1", "shaders/FragmentShader_Screen.glsl?v=22");
+    var program = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShader.glsl?v=14");
+    var programoutline = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShaderoutline.glsl?v=14");
+    var programedvarlogo = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShader_Masked.glsl?v=13");
+    var screenprogram = await createProgram(gl, "shaders/VertexShader_Screen.glsl?v=1", "shaders/FragmentShader_Screen.glsl?v=28");
     gl.useProgram(program);
     if (!program) {
         console.error("Shader program could not be created.");
