@@ -1,3 +1,4 @@
+import { DirectioanalLight } from "./Lights.js";
 import { StaticMesh } from "./Mesh.js";
 import { parseOBJ, importImage } from "./MeshUtils.js";
 import { mat4,vec3 } from "./gl-matrix/index.js";
@@ -5,9 +6,12 @@ import { mat4,vec3 } from "./gl-matrix/index.js";
 
 export class ModelImporter {
 
-    constructor(gl, world, program, texture,gizmo) {
+    constructor(gl, world, program, texture,gizmo,unlitprogram) {
         this.gl = gl;
         this.gizmo =gizmo;
+        this.unlitprogram =unlitprogram;
+        this.world =world;
+       this.texture = texture;
         this.ImplementImporter(gl, world, program, texture,gizmo);
         this.UpdateOutliner(gl, world, program, texture,gizmo);
         this.selectedobject;
@@ -173,8 +177,14 @@ input.addEventListener("input", this.UpdateTransform.bind(this))
             console.log("Spotlight button clicked");
         });
 
-        directionallightbutton.addEventListener("click", () => {
+        directionallightbutton.addEventListener("click", async () => {
             console.log("Directional light button clicked");
+            const lighttexture = await importImage(this.gl,"resources/orange.png");
+            const directionallightmesh = new StaticMesh(this.gl,parseOBJ(await (await fetch('./resources/directionalLight.obj?v=1')).text()),this.unlitprogram,lighttexture);
+            const directionallight = new DirectioanalLight (this.gl,directionallightmesh);
+            directionallightmesh.name = "directionalLight";
+            this.world.AddLight(directionallight);
+            this.UpdateOutliner(this.gl,this.world,this.program,this.texture,this.gizmo);
         });
 
         pointlightbutton.addEventListener("click", () => {

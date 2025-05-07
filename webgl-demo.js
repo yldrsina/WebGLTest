@@ -35,6 +35,7 @@ async function main() {
 
     var program = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShader.glsl?v=16");
     var screenprogram = await createProgram(gl, "shaders/VertexShader_Screen.glsl?v=1", "shaders/FragmentShader_Screen.glsl?v=30");
+    var unlitprogram = await createProgram(gl, "shaders/VertexShader.glsl?v=1", "shaders/FragmentShader_Unlit.glsl?v=0");
     
     gl.useProgram(program);
     if (!program) {
@@ -66,7 +67,7 @@ async function main() {
     mat4.scale(planemesh.transform,planemesh.transform,vec3.fromValues(4,4,4));
     
     //MODEL IMPORTER
-    const modelimporter = new ModelImporter(gl,world,program,T_UVSample,gizmo);
+    const modelimporter = new ModelImporter(gl,world,program,T_UVSample,gizmo,unlitprogram);
 
    
     window.world1.AddStaticMesh(planemesh);
