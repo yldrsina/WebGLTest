@@ -29,6 +29,10 @@ export class World {
                 this.framebufferselectorvalue = 0;
             if (value == "Depth")
                 this.framebufferselectorvalue = 1;
+            if(value=="UnLit"){
+                this.framebufferselectorvalue=2;
+                console.log("Value" + this.framebufferselectorvalue);
+            }
         })
 
     }
@@ -65,6 +69,15 @@ export class World {
         });
 
     }
+    RemoveStaticMesh(mesh) {
+        const index = this.drawables.findIndex(item => item.name == mesh.name);
+        console.log(index);
+        if (index > -1) {
+            this.drawables.splice(index, 1);
+        } else {
+            console.error("Mesh not found in drawables array. Ensure the 'name' property matches.");
+        }
+    }
 
     drawScreenbufferMesh() {
         this.gl.useProgram(this.worldprogram);
@@ -77,9 +90,15 @@ export class World {
 
         this.gl.uniform1i(this.framebufferselectoruniform, this.framebufferselectorvalue);
 
-
+        //DEPTH TEXTURE
         this.gl.activeTexture(this.gl.TEXTURE1);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebuffer.depthbufferTexture);
+        //UNLIT TEXTURE
+        this.gl.activeTexture(this.gl.TEXTURE2);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebuffer.unlitbufferTexture);
+
+        const u_sampler2 = this.gl.getUniformLocation(this.worldprogram,"unlitTexture");
+        this.gl.uniform1i(u_sampler2,2);
 
 
 

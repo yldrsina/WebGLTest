@@ -5,6 +5,7 @@
 uniform sampler2D screenTexture;
 uniform sampler2D depthTexture;
 uniform int framebufferselector;
+uniform sampler2D unlitTexture;
 
 
 
@@ -25,6 +26,8 @@ uniform int framebufferselector;
     color = texture(screenTexture,TexCoords).rgb;
     if (framebufferselector==1)
     color = texture(depthTexture,TexCoords).rgb;
+    if(framebufferselector==2)
+    color = texture(unlitTexture,TexCoords).rgb;
     
     FragColor =  vec4(color,1.0);
 

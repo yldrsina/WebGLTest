@@ -9,6 +9,8 @@ import { InputSystem } from "./Input.js";
  * @param {World} world
  * @param {Camera} camera1
  */
+export const TickEventBus = new EventTarget();
+
 export function drawScene(gl, world, screenprogram) {
     var lastTime = 0;
     let fps = 0;
@@ -43,10 +45,15 @@ export function drawScene(gl, world, screenprogram) {
 
         world.camera.updateCameraVectors();
 
-        mat4.rotate(world.drawables[3].transform, world.drawables[3].transform, glMatrix.toRadian(25 * window.deltaTime), vec3.fromValues(0, 1, 1));
+        // Event Tick
+        
+        TickEventBus.dispatchEvent(new Event("tick"));
 
         //Draw StaticMeshes in world
         world.drawables.forEach((val) => {
+
+
+
             val.draw(world.camera.viewMatrix, world.camera.projectionMatrix);
         });
 

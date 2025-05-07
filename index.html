@@ -10,17 +10,82 @@
 </head>
 
 <body>
-  <canvas id="gl-canvas" class="renderscreen" width="1280" height="720"></canvas>
-  <p id="fps"></p>
-  <p id="camera-position">Cam Pos:</p>
-  <p id="camera-rotation">Cam Rot:</p>
-  <p id="camera-info"></p>
-  <label for ="menu">FrameBuffer:</label>
-  <select id = "menu">
-  <option value = "DefaultLit">DefaultLit</option>
-  <option value = "UnLit">UnLit</option>
-  <option value = "Depth" >Depth</option>
-</select>
+  <div class="renderer">
+    <canvas id="gl-canvas" class="renderscreen" width="1280" height="720"></canvas>
+
+
+    <!-- Outliner -->
+    <div id="outliner">
+      <h3>Outliner</h3>
+      <ul id="outliner-list">
+        <li>Cube</li>
+        <li>Sphere</li>
+        <li>Light</li>
+      </ul>
+    </div>
+
+    <!-- Details Panel -->
+    <div id="details-panel">
+      <h2>Details</h2>
+
+      <div class="section">
+        <label>Position</label>
+        <div class="axis-group">
+          <span>X</span><input id="position-x" type="number" value="0" />
+          <span>Y</span><input id="position-y" type="number" value="0" />
+          <span>Z</span><input id="position-z" type="number" value="0" />
+        </div>
+      </div>
+
+      <div class="section">
+        <label>Rotation</label>
+        <div class="axis-group">
+          <span>X</span><input id="rotation-x" type="number" value="0" />
+          <span>Y</span><input id="rotation-y" type="number" value="0" />
+          <span>Z</span><input id="rotation-z" type="number" value="0" />
+        </div>
+      </div>
+
+      <div class="section">
+        <label>Scale</label>
+        <div class="axis-group">
+          <span>X</span><input id="scale-x" type="number" value="1" />
+          <span>Y</span><input id="scale-y" type="number" value="1" />
+          <span>Z</span><input id="scale-z" type="number" value="1" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="infopanel">
+    <p id="fps"></p>
+    <div>
+      <label for="menu" style="color: azure">FrameBuffer:</label>
+      <select id="menu">
+        <option value="DefaultLit">DefaultLit</option>
+        <option value="UnLit">UnLit</option>
+        <option value="Depth">Depth</option>
+      </select>
+    </div>
+    <input type="file" id="obj-input" accept=".obj" />
+    <div class="light-buttons" style="display: flex; gap: 8px;">
+        <button id="spotlight-btn" class="icon-button" style="width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+          <img src="icons/spotlight.png" alt="Spotlight" style="width: 48px; height: 48px;">
+        </button>
+        <button id="directional-light-btn" class="icon-button" style="width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+          <img src="icons/directional-light.png" alt="Directional Light" style="width: 48px; height: 48px;">
+        </button>
+        <button id="pointlight-btn" class="icon-button" style="width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+          <img src="icons/pointlight.png" alt="Point Light" style="width: 48px; height: 48px;">
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+
 </body>
 
 </html>

@@ -1,16 +1,119 @@
 body {
-    background-color: rgb(26, 36, 39);
-    margin-left: 20px;
-  }
+  background-color: rgb(8, 8, 8);
+  margin-left: 20px;
 
-  .renderscreen{
-    display: block;
-    margin: auto;
-    border-style: solid;
-    border-width: 5px;
-    border-radius: 5px;
-    border-color: green;
-  }
-  p {
-    color: azure;
-  }
+
+}
+
+.renderer {
+  display: flex;
+}
+
+* {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+
+
+.renderscreen {
+  display: flex;
+  margin: auto;
+  border-style: solid;
+  border-width: 3px;
+  border-radius: 5px;
+  border-color: rgb(131, 131, 131);
+}
+
+p {
+  color: azure;
+}
+
+/* Outliner */
+#outliner {
+  width: 200px;
+  background-color: #1a1a1a;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: azure;
+}
+
+#outliner ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: azure;
+  border-bottom: azure;
+  border-radius: 5px;
+  background-color: #2e2e2e;
+}
+
+#outliner li {
+  padding: 8px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+  background-color: #4b4b4b;
+}
+
+#outliner li:hover {
+  background-color: #f0f0f0;
+}
+
+/* Details panel */
+#details-panel {
+  flex-grow: 1;
+  background-color: #1a1a1a;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: azure;
+}
+
+#details-panel h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.section {
+  margin-top: 10px;
+  background-color: rgb(44, 44, 44);
+}
+
+.section label {
+  display: inline-block;
+  width: 60px;
+  font-weight: light;
+}
+
+.axis-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+  
+}
+
+.axis-group input {
+  width: 60px;
+  padding: 4px;
+  font-size: 14px;
+  background-color: #c0c0c0;
+}
+
+.axis-group span {
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+#infopanel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-items: center;
+  gap: 10px;
+  background-color: #1d1d1d;
+}

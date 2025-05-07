@@ -9,7 +9,7 @@ export class StaticMesh {
      * @param {Float32Array} textureCoordinates 
      * @param {Number} program 
      */
-    constructor(gl, geometries, program, texture, outlineprogram = null, drawoutline = false,transparent=false) {
+    constructor(gl, geometries, program, texture, outlineprogram = null, drawoutline = false,transparent=false,depthtest = true) {
         this.transform = mat4.create();
         this.normalTransform = mat4.create();
         this.program = program;
@@ -21,7 +21,9 @@ export class StaticMesh {
         this.drawoutline = drawoutline;
         this.viewMatrix = mat4.create();
         this.projectionMatrix = mat4.create();
-        this.transparent = transparent
+        this.transparent = transparent;
+        this.name = "Nameless Object";
+        this.depthtest = depthtest;
 
 
         this.positionAttributeLocation = gl.getAttribLocation(program, "a_position");
@@ -165,8 +167,54 @@ export class StaticMesh {
             this.gl.enableVertexAttribArray(this.normalsAttributeLocation);
             this.gl.vertexAttribPointer(this.normalsAttributeLocation, 3, this.gl.FLOAT, false, 8 * 4 /**3 floats for location, 2 floats for texcord*/, 5 * 4 /**next to location.*/);
 
+            //DEPTHTEST CONTROL
+            if(this.depthtest)
+            this.gl.enable(this.gl.DEPTH_TEST);
+            else
+            this.gl.disable(this.gl.DEPTH_TEST);
+
+
             this.gl.drawElements(this.gl.TRIANGLES, this.gl.getBufferParameter(this.gl.ELEMENT_ARRAY_BUFFER, this.gl.BUFFER_SIZE) / 2, this.gl.UNSIGNED_SHORT, 0);
             this.drawOutlineEffect(this.drawoutline, 1);
         });
     }
+    setScalePreserveRotationAndPosition(out, inputMatrix, sx, sy, sz) {
+        // Kopyala çünkü inputMatrix değişmeden kalabilir
+        mat4.copy(out, inputMatrix);
+      
+        // Mevcut rotasyon + scale sütunlarını al
+        let xAxis = vec3.fromValues(out[0], out[1], out[2]);
+        let yAxis = vec3.fromValues(out[4], out[5], out[6]);
+        let zAxis = vec3.fromValues(out[8], out[9], out[10]);
+      
+        // Normalize ederek scale'i çıkar (saf rotasyon elde edilir)
+        vec3.normalize(xAxis, xAxis);
+        vec3.normalize(yAxis, yAxis);
+        vec3.normalize(zAxis, zAxis);
+      
+        // Yeni scale değerleriyle tekrar ölçekle
+        vec3.scale(xAxis, xAxis, sx);
+        vec3.scale(yAxis, yAxis, sy);
+        vec3.scale(zAxis, zAxis, sz);
+      
+        // Geri yaz
+        out[0] = xAxis[0]; out[1] = xAxis[1]; out[2] = xAxis[2];
+        out[4] = yAxis[0]; out[5] = yAxis[1]; out[6] = yAxis[2];
+        out[8] = zAxis[0]; out[9] = zAxis[1]; out[10] = zAxis[2];
+      
+        // Translation zaten out[12], out[13], out[14]'de, değiştirilmez
+        return out;
+      }
+    updateTransformFromDetailsPanel(position = vec3.create(),rotation = vec3.create(),scale = vec3.create()) {
+        mat4.identity(this.transform);
+        // Apply transformations
+        mat4.translate(this.transform, this.transform, position);
+        mat4.rotateX(this.transform, this.transform, rotation[0] * (Math.PI / 180)); // Convert degrees to radians
+        mat4.rotateY(this.transform, this.transform, rotation[1] * (Math.PI / 180));
+        mat4.rotateZ(this.transform, this.transform, rotation[2] * (Math.PI / 180));
+        mat4.scale(this.transform, this.transform, scale);
+    
+    }
+
+    
 }

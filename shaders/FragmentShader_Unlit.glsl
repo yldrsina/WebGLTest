@@ -76,7 +76,7 @@ layout (location =2) out vec4 UnlitColor;
      //phase 3: spot light
         lightresult = lightresult + CalcSpotLight(spotLight, norm, FragPos, viewDir);    
 
-    FragColor = texture(material.diffuse,TexCoords)*vec4(lightresult,1);
+    FragColor = texture(material.diffuse,TexCoords);
     UnlitColor = texture(material.diffuse,TexCoords);
 
   }
