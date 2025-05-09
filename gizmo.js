@@ -26,7 +26,7 @@ constructor(gl,world){
 update(){
     const location = vec3.create();
     mat4.getTranslation(location,this.GizmoLocXMesh.transform);
-    const scalefloat = distance(this.world.camera.Position, location)/10;
+    const scalefloat = distance(this.world.camera.Position, location)/15;
     this.GizmoLocXMesh.setScalePreserveRotationAndPosition(this.GizmoLocXMesh.transform,this.GizmoLocXMesh.transform,scalefloat,scalefloat,scalefloat);
     this.GizmoLocYMesh.setScalePreserveRotationAndPosition(this.GizmoLocYMesh.transform,this.GizmoLocYMesh.transform,scalefloat,scalefloat,scalefloat);
     this.GizmoLocZMesh.setScalePreserveRotationAndPosition(this.GizmoLocZMesh.transform,this.GizmoLocZMesh.transform,scalefloat,scalefloat,scalefloat);

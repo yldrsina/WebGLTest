@@ -46,7 +46,7 @@ struct SpotLight {
 
 uniform vec3 viewPos;
 uniform DirLight dirLight;
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform PointLight pointLight;
 uniform SpotLight spotLight;
 uniform Material material;
 
@@ -71,8 +71,7 @@ layout (location =2) out vec4 UnlitColor;
     vec3 viewDir = normalize(viewPos - FragPos);
         vec3 lightresult = CalcDirLight(dirLight, norm, viewDir);
     //phase 2: point lights
-    //for(int i = 0; i < NR_POINT_LIGHTS; i++)
-     //result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
+     lightresult += CalcPointLight(pointLight, norm, FragPos, viewDir);    
      //phase 3: spot light
         lightresult = lightresult + CalcSpotLight(spotLight, norm, FragPos, viewDir);    
 

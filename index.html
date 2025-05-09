@@ -54,12 +54,49 @@
           <span>Z</span><input id="scale-z" type="number" value="1" />
         </div>
       </div>
+
+      <div class="section">
+        <label>Light Info</label>
+        <div class="light-info-group">
+          <label for="light-color">Color</label>
+          <input id="light-color" type="color" value="#ffffff" />
+        </div>
+        <div class="light-info-group">
+          <label for="light-intensity">Intensity</label>
+          <input id="light-intensity" type="number" value="1" step="0.1" min="0" />
+        </div>
+      </div>
+      <div class="section">
+        <label>Texture</label>
+        <div class="texture-preview-group">
+          <label for="texture-import">Import Texture</label>
+          <input id="texture-import" type="file" accept="image/*" />
+          <div class="texture-preview" style="margin-top: 10px; width: 128px; height: 128px; border: 1px solid #ccc; background-size: cover; background-position: center;" id="texture-preview"></div>
+        </div>
+      </div>
+
+      <script>
+        const textureInput = document.getElementById('texture-import');
+        const texturePreview = document.getElementById('texture-preview');
+
+        textureInput.addEventListener('change', (event) => {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              texturePreview.style.backgroundImage = `url(${e.target.result})`;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      </script>
     </div>
-  </div>
+  </div></div>
 
 
   <div id="infopanel">
-    <p id="fps"></p>
+    <div style = "display: block; width: 90px; padding-right: 15px;"><p id="fps"></p></div>
+    
     <div>
       <label for="menu" style="color: azure">FrameBuffer:</label>
       <select id="menu">
@@ -68,7 +105,10 @@
         <option value="Depth">Depth</option>
       </select>
     </div>
-    <input type="file" id="obj-input" accept=".obj" />
+    <div style = "display: flex; align-items: center; justify-content: center;">
+      <p style = "margin-right: 5px;">Model Yükle</p>
+      <input type="file" id="obj-input" accept=".obj" />
+    </div>
     <div class="light-buttons" style="display: flex; gap: 8px;">
         <button id="spotlight-btn" class="icon-button" style="width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
           <img src="icons/spotlight.png" alt="Spotlight" style="width: 48px; height: 48px;">

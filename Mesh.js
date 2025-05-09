@@ -9,7 +9,7 @@ export class StaticMesh {
      * @param {Float32Array} textureCoordinates 
      * @param {Number} program 
      */
-    constructor(gl, geometries, program, texture, outlineprogram = null, drawoutline = false,transparent=false,depthtest = true) {
+    constructor(gl, geometries, program, texture, outlineprogram = null, drawoutline = false,transparent=false,depthtest = true,light =null) {
         this.transform = mat4.create();
         this.normalTransform = mat4.create();
         this.program = program;
@@ -24,6 +24,7 @@ export class StaticMesh {
         this.transparent = transparent;
         this.name = "Nameless Object";
         this.depthtest = depthtest;
+        this.light = light;
 
 
         this.positionAttributeLocation = gl.getAttribLocation(program, "a_position");

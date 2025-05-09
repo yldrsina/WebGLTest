@@ -1,6 +1,7 @@
-import { DirectioanalLight } from "./Lights.js";
+import { DirectioanalLight, PointLight, SpotLight } from "./Lights.js";
 import { StaticMesh } from "./Mesh.js";
 import { parseOBJ, importImage } from "./MeshUtils.js";
+import { toRadian } from "./gl-matrix/common.js";
 import { mat4,vec3 } from "./gl-matrix/index.js";
 
 
@@ -17,6 +18,10 @@ export class ModelImporter {
         this.selectedobject;
         this.ImplementDetailsPanel();
         this.ImplementLightsPanel();
+        this.UpdateLightInfoPanel();
+        this.ImportTexture();
+        this.intensity =1;
+        this.color = vec3.fromValues(1,1,1);
 
         
 
@@ -75,6 +80,7 @@ export class ModelImporter {
                 } else {
                     gizmo.MakeVisible();
                 }
+                this.UpdateLightInfoPanel();
 
                 // Update details panel with the selected object's transform
                 const position = mat4.getTranslation(vec3.create(), obj.transform);
@@ -173,25 +179,163 @@ input.addEventListener("input", this.UpdateTransform.bind(this))
         const directionallightbutton = document.getElementById("directional-light-btn");
         const pointlightbutton = document.getElementById("pointlight-btn");
 
-        spotlightbutton.addEventListener("click", () => {
+        spotlightbutton.addEventListener("click", async() => {
             console.log("Spotlight button clicked");
+
+            const lighttexture = await importImage(this.gl,"resources/orange.png");
+            const spotlightmesh = new StaticMesh(this.gl,parseOBJ(await (await fetch('./resources/spotLight.obj?v=1')).text()),this.unlitprogram,lighttexture);
+            const spotlight = new SpotLight(this.gl,spotlightmesh);
+            spotlightmesh.light = spotlight;
+            spotlightmesh.name = "spotLight";
+            mat4.translate(spotlightmesh.transform,spotlightmesh.transform,vec3.fromValues(0,15,25));
+            mat4.rotateX(spotlightmesh.transform,spotlightmesh.transform,toRadian(135));
+            this.world.AddLight(spotlight);
+            this.UpdateOutliner(this.gl,this.world,this.program,this.texture,this.gizmo);
+            spotlight.diffuse = vec3.fromValues(15,15,15);
         });
 
         directionallightbutton.addEventListener("click", async () => {
             console.log("Directional light button clicked");
+
             const lighttexture = await importImage(this.gl,"resources/orange.png");
             const directionallightmesh = new StaticMesh(this.gl,parseOBJ(await (await fetch('./resources/directionalLight.obj?v=1')).text()),this.unlitprogram,lighttexture);
             const directionallight = new DirectioanalLight (this.gl,directionallightmesh);
+            directionallightmesh.light = directionallight;
             directionallightmesh.name = "directionalLight";
+            mat4.translate(directionallightmesh.transform,directionallightmesh.transform,vec3.fromValues(0,8,1));
+            mat4.rotateX(directionallightmesh.transform,directionallightmesh.transform,toRadian(60));
             this.world.AddLight(directionallight);
+            this.UpdateOutliner(this.gl,this.world,this.program,this.texture,this.gizmo);
+            directionallight.diffuse = vec3.fromValues (0.2,0.2,0.2);
+        });
+
+        pointlightbutton.addEventListener("click", async() => {
+            console.log("Point light button clicked");
+            const lighttexture = await importImage(this.gl,"resources/orange.png");
+            const lightmesh = new StaticMesh(this.gl,parseOBJ(await (await fetch('./resources/pointLight.obj?v=1')).text()),this.unlitprogram,lighttexture);
+            const light = new PointLight (this.gl,lightmesh);
+            lightmesh.light = light;
+            lightmesh.name = "pointLight";
+            mat4.translate(lightmesh.transform,lightmesh.transform,vec3.fromValues(3,3,3));
+            mat4.rotateX(lightmesh.transform,lightmesh.transform,toRadian(60));
+            this.world.AddLight(light);
             this.UpdateOutliner(this.gl,this.world,this.program,this.texture,this.gizmo);
         });
 
-        pointlightbutton.addEventListener("click", () => {
-            console.log("Point light button clicked");
+    }
+
+    UpdateLightInfoPanel() {
+        const lightInfoPanel = document.querySelector(".light-info-group").parentElement; // Get the Light Info section
+        const lightColorInput = document.getElementById("light-color");
+        const lightIntensityInput = document.getElementById("light-intensity");
+
+        // Ensure a light is selected before updating
+        if (!this.selectedobject || !(this.selectedobject.name === "spotLight" || this.selectedobject.name === "directionalLight" ||this.selectedobject.name == "pointLight")) {
+            console.warn("No light object selected or selected object is not a light.");
+            lightInfoPanel.style.display = "none"; // Hide the Light Info section
+            console.log("OH NOO");
+            return;
+        }
+
+        lightInfoPanel.style.display = "block"; // Show the Light Info section
+
+        const selectedLight = this.selectedobject.parentLight; // Access the parent light (if applicable)
+
+        // Set initial values in the panel based on the selected light
+        lightColorInput.value = selectedLight?.color || "#ffffff";
+        lightIntensityInput.value = selectedLight?.intensity || 1;
+
+        // Update light color
+        lightColorInput.addEventListener("input", (event) => {
+            const color = event.target.value;
+            if (this.selectedobject.light) {
+                this.color = this.HexToVec3(color);
+                this.selectedobject.light.diffuse = vec3.fromValues(this.color[0]*this.intensity,this.color[1]*this.intensity,this.color[2]*this.intensity) ; // Update the light's color property
+                console.log(`Updated light color to: ${this.selectedobject.light.diffuse}`);
+            }
         });
 
+        // Update light intensity
+        lightIntensityInput.addEventListener("input", (event) => {
+            const intensity = parseFloat(event.target.value);
+            if (this.selectedobject.light) {
+                this.intensity = intensity;
+                var currentColor = this.color;
+                currentColor = vec3.fromValues(currentColor[0]*intensity,currentColor[1]*intensity,currentColor[2]*intensity);
+                this.selectedobject.light.diffuse = currentColor;
+                console.log(`Updated light intensity to: ${intensity}`);
+            }
+        });
+    }
+    ImportTexture() {
+        const textureInput = document.getElementById('texture-import');
+        const texturePreview = document.getElementById('texture-preview');
+
+        // Add an event listener for texture import
+        textureInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const imageSrc = e.target.result;
+
+                // Update the texture preview
+                texturePreview.style.backgroundImage = `url(${imageSrc})`;
+
+                // Import the texture using the importImage function
+                const texture = await importImage(this.gl, imageSrc);
+
+                // Apply the texture to the selected object
+                if (this.selectedobject) {
+                    this.selectedobject.texture = texture;
+                    console.log(`Texture applied to object: ${this.selectedobject.name}`);
+                } else {
+                    console.warn("No object selected to apply the texture.");
+                }
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    HexToVec3(hexColor) {
+        // Remove the hash at the start if it's there
+        hexColor = hexColor.replace(/^#/, '');
+
+        // Parse the hex color into RGB components
+        const r = parseInt(hexColor.substring(0, 2), 16) / 255;
+        const g = parseInt(hexColor.substring(2, 4), 16) / 255;
+        const b = parseInt(hexColor.substring(4, 6), 16) / 255;
+
+        // Return as a vec3
+        return vec3.fromValues(r, g, b);
+    }
+
+    Vec3ToHex(vec) {
+        // Convert each component to a 2-digit hex string
+        const r = Math.round(vec[0] * 255).toString(16).padStart(2, '0');
+        const g = Math.round(vec[1] * 255).toString(16).padStart(2, '0');
+        const b = Math.round(vec[2] * 255).toString(16).padStart(2, '0');
+
+        // Combine into a hex color string
+        return `#${r}${g}${b}`;
     }
 }
 
-        

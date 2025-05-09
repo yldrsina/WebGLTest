@@ -11,7 +11,7 @@ import { InputSystem } from "./Input.js";
  */
 export const TickEventBus = new EventTarget();
 
-export function drawScene(gl, world, screenprogram) {
+export function drawScene(gl, world, screenprogram,lightableprograms) {
     var lastTime = 0;
     let fps = 0;
     function Tick(currentTime) {
@@ -31,7 +31,7 @@ export function drawScene(gl, world, screenprogram) {
         gl.enable(gl.STENCIL_TEST);
         gl.stencilFunc(gl.NOTEQUAL, 1, 0xFF);
         gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
-        gl.clearColor(0.2, 0.3, 0.3, 1.0);
+        gl.clearColor(0.1, 0.1, 0.12, 1.0);
 
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
@@ -56,10 +56,14 @@ export function drawScene(gl, world, screenprogram) {
 
             val.draw(world.camera.viewMatrix, world.camera.projectionMatrix);
         });
+        //Draw Lights in world
+        world.DrawLights(lightableprograms);
+        
+
 
         // BINDING DEFAULT FRAMEBUFFER BACK
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.clearColor(0.2, 0.3, 0.3, 1.0);
+        gl.clearColor(0.1, 0.1, 0.12, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
         world.drawScreenbufferMesh();
 

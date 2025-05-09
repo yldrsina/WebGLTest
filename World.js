@@ -29,8 +29,8 @@ export class World {
                 this.framebufferselectorvalue = 0;
             if (value == "Depth")
                 this.framebufferselectorvalue = 1;
-            if(value=="UnLit"){
-                this.framebufferselectorvalue=2;
+            if (value == "UnLit") {
+                this.framebufferselectorvalue = 2;
                 console.log("Value" + this.framebufferselectorvalue);
             }
         })
@@ -69,6 +69,21 @@ export class World {
         });
 
     }
+
+    DrawLights(lightableprograms = []) {
+        if (this.lights.length > 0) {
+            this.lights.forEach(light => {
+                lightableprograms.forEach(lightableprogram => {
+                    light.setLightUniformsandDraw(lightableprogram);
+                });
+            });
+        }
+    }
+
+
+
+
+
     RemoveStaticMesh(mesh) {
         const index = this.drawables.findIndex(item => item.name == mesh.name);
         console.log(index);
@@ -81,7 +96,7 @@ export class World {
 
     drawScreenbufferMesh() {
         this.gl.useProgram(this.worldprogram);
-        
+
         this.gl.uniform1i(this.screenTextureuniform, 0);
         this.gl.uniform1i(this.depthTextureuniform, 1);
         this.gl.activeTexture(this.gl.TEXTURE0);
@@ -97,13 +112,13 @@ export class World {
         this.gl.activeTexture(this.gl.TEXTURE2);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.framebuffer.unlitbufferTexture);
 
-        const u_sampler2 = this.gl.getUniformLocation(this.worldprogram,"unlitTexture");
-        this.gl.uniform1i(u_sampler2,2);
+        const u_sampler2 = this.gl.getUniformLocation(this.worldprogram, "unlitTexture");
+        this.gl.uniform1i(u_sampler2, 2);
 
 
 
 
-        
+
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.screenmeshbuffer);
         this.gl.enableVertexAttribArray(this.positionAttributeLocation);
         this.gl.vertexAttribPointer(this.positionAttributeLocation, 3, this.gl.FLOAT, false, 4 * 4 /**3 floats for location, 2 floats for texcord*/, 0 /**buffer start*/);
